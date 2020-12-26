@@ -6,6 +6,9 @@ Vagrant.configure("2") do |config|
     subconfig.vm.box = BOX_IMAGE
     subconfig.vm.hostname = "master"
     subconfig.vm.network :private_network, ip: "10.0.0.10"
+    subconfig.vm.provision "shell", inline: <<-SHELL
+      echo "this script runs only on master nodes"
+    SHELL
   end
 
   (1..NODE_COUNT).each do |i|
@@ -13,15 +16,18 @@ Vagrant.configure("2") do |config|
       subconfig.vm.box = BOX_IMAGE
       subconfig.vm.hostname = "node#{i}"
       subconfig.vm.network :private_network, ip: "10.0.0.#{i + 10}"
+      subconfig.vm.provision "shell", inline: <<-SHELL
+        echo "this script runs only on worker nodes"
+      SHELL
     end
   end
 
   # Install multicast dns, and helper tools on all machine
   # ping master.local
   config.vm.provision "shell", inline: <<-SHELL
-	sudo yum install -y epel-release net-tools
-	sudo yum install -y avahi avahi-tools nss-mdns
-	sudo systemctl start avahi-daemon
+    sudo yum install -y epel-release net-tools
+    sudo yum install -y avahi avahi-tools nss-mdns
+    sudo systemctl start avahi-daemon
     sudo systemctl enable avahi-daemon
   SHELL
 end
