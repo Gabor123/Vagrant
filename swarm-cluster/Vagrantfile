@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
         v.memory = 2048
         v.cpus = 4
       end
-	end
+    end
   end
   
   (1..WORKER_NODE_COUNT).each do |i|
@@ -37,36 +37,36 @@ Vagrant.configure("2") do |config|
   # Install docker on all machines  
   config.vm.provision "shell", inline: <<-SHELL
     # helper tools
-	sudo yum install -y net-tools
-	# docker
+    sudo yum install -y net-tools
+    # docker
     sudo yum install -y yum-utils
-	sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-	sudo yum install -y docker-ce docker-ce-cli containerd.io
-	sudo systemctl start docker
-	sudo systemctl enable docker
-	# docker-compose
-	sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-	sudo chmod +x /usr/local/bin/docker-compose
-	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    sudo yum install -y docker-ce docker-ce-cli containerd.io
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    # docker-compose
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
   SHELL
   
   # Setting up static hostnames 
   (1..MASTER_NODE_COUNT).each do |i|
     config.vm.provision "shell", inline: <<-SHELL
-	  sudo echo 10.0.0.#{i + 9} master#{i} >> /etc/hosts
-	SHELL
+      sudo echo 10.0.0.#{i + 9} master#{i} >> /etc/hosts
+    SHELL
   end
   (1..WORKER_NODE_COUNT).each do |i|
     config.vm.provision "shell", inline: <<-SHELL
-	  sudo echo 10.0.0.#{i + 19} node#{i} >> /etc/hosts
-	SHELL
+      sudo echo 10.0.0.#{i + 19} node#{i} >> /etc/hosts
+    SHELL
   end
   
   # Setting up dynamic hostnames  (ping master.local)
   config.vm.provision "shell", inline: <<-SHELL    
-	#sudo yum install -y epel-release
-	#sudo yum install -y avahi avahi-tools nss-mdns
-	#sudo systemctl start avahi-daemon
+    #sudo yum install -y epel-release
+    #sudo yum install -y avahi avahi-tools nss-mdns
+    #sudo systemctl start avahi-daemon
     #sudo systemctl enable avahi-daemon
   SHELL
 end
